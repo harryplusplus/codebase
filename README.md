@@ -2,6 +2,7 @@
 
 Code semantic database for AI agents
 
-## References
+## Requirements
 
-Embedding model: [nomic-embed-text-v2-moe](https://ollama.com/library/nomic-embed-text-v2-moe)
+- [Ollama](https://ollama.com/)
+- Model: [nomic-embed-text-v2-moe](https://ollama.com/library/nomic-embed-text-v2-moe)
