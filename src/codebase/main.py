@@ -1,44 +1,54 @@
 from pathlib import Path
-import chromadb
-import ollama
-from chromadb import Documents, EmbeddingFunction, Embeddings
+
 import typer
 
-from codebase.constants import COLLECTION_NAME, MODEL_NAME
-
-
-class OllamaEmbeddingFunction(EmbeddingFunction[Documents]):
-    def __init__(self):
-        pass
-
-    def __call__(self, input: Documents) -> Embeddings:
-        embeddings = []
-        for text in input:
-            response = ollama.embed(
-                model=MODEL_NAME, input=f"search_document: {text}"
-            )
-            embeddings.append(response["embeddings"][0])
-        return embeddings
-
-
-client = chromadb.PersistentClient()
-
-collection = client.get_or_create_collection(
-    name=COLLECTION_NAME, embedding_function=OllamaEmbeddingFunction()
+from codebase.app import AppState, app, get_state
+from codebase.commands.init import init_command
+from codebase.commands.search import search_command
+from codebase.constants import (
+    DEFAULT_IGNORE_PATTERNS,
 )
 
-app = typer.Typer()
+
+@app.callback()
+def main_callback(
+    ctx: typer.Context,
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Show detailed info"
+    ),
+):
+    """Code semantic database for AI agents."""
+
+    ctx.obj = AppState(verbose=verbose)
 
 
 @app.command()
-def init(paths: list[Path] = typer.Argument(..., help="Directories to index")):
+def init(
+    ctx: typer.Context,
+    paths: list[Path] = typer.Argument(..., help="Directories to index"),
+    ignore: list[str] = typer.Option(
+        None,
+        "--ignore",
+        "-i",
+        help=f"Patterns to ignore (.gitignore style, default: {', '.join(DEFAULT_IGNORE_PATTERNS)})",
+    ),
+):
     """Index all code files from directories (clears and recreates collection)."""
 
-    try:
-        client.delete_collection(COLLECTION_NAME)
-        typer.secho("✓ Cleared existing collection.", fg=typer.colors.YELLOW)
-    except Exception:
-        pass
+    state = get_state(ctx)
+    ignore_patterns = ignore if ignore else DEFAULT_IGNORE_PATTERNS
+
+    init_command(state, paths, ignore_patterns)
+
+
+@app.command()
+def search(
+    query: str = typer.Argument(..., help="Search query"),
+    top_k: int = typer.Option(5, "--top-k", "-k", help="Number of results"),
+):
+    """Search code. Returns JSON array, e.g. [{"rank": 1, "file_path": "src/main.py", "distance": 0.1234, "content": "..."}]."""
+
+    search_command(query, top_k)
 
 
 if __name__ == "__main__":
