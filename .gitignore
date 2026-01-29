@@ -210,7 +210,7 @@ __marimo__/
 .codebase/
 
 # VS Code
-/.vscode/
+.vscode/
 
 # Claude
-/.claude/*.local.*
+.claude/*.local.*
