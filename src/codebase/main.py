@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import typer
@@ -35,10 +36,15 @@ def init(
 ):
     """Index all code files from directories (clears and recreates collection)."""
 
+    start_time = time.time()
+
     state = get_state(ctx)
     ignore_patterns = ignore if ignore else DEFAULT_IGNORE_PATTERNS
 
     init_command(state, paths, ignore_patterns)
+
+    elapsed_time = time.time() - start_time
+    typer.secho(f"Completed in {elapsed_time:.2f}s", fg=typer.colors.CYAN)
 
 
 @app.command()

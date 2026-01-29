@@ -22,7 +22,7 @@ class OllamaEmbeddingFunction(chromadb.EmbeddingFunction[chromadb.Documents]):
 
 
 def get_client() -> ClientAPI:
-    return chromadb.PersistentClient()
+    return chromadb.PersistentClient(".codebase")
 
 
 def get_collection(client: ClientAPI) -> chromadb.Collection:

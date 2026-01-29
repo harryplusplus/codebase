@@ -37,14 +37,13 @@ def init_command(
             )
 
             if state.verbose:
-                typer.echo(f"  Indexed {doc_id}")
+                typer.echo(f"Indexed {doc_id}")
 
         total_files += len(files)
         typer.secho(
-            f"  Indexed {len(files)} files from {path}", fg=typer.colors.BLUE
+            f"Indexed {len(files)} files from {path}", fg=typer.colors.BLUE
         )
 
-    typer.echo("")
     typer.secho(f"✓ Total: {total_files} files indexed", fg=typer.colors.GREEN)
 
 
